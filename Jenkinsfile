@@ -28,7 +28,8 @@ pipeline {
         stage('Publish Image') {
             steps {
                 script {
-                    docker.withRegistry('tcp://192.168.11.104:2376', registryCredential) {
+                    // docker.withRegistry('tcp://192.168.11.104:2376', registryCredential)
+                    withDockerRegistry([ credentialsId: registryCredential, url: "" ]) {
                         dockerImage.push()
                     }
                 }
