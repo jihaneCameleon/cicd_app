@@ -1,7 +1,7 @@
 pipeline {
     environment {
         registry = 'amachlou/cicd_app'
-        registryCredential = 'dockerhub'
+        registryCredential = 'docker_hub'
         dockerImage = ''
     }
     agent any
@@ -23,13 +23,12 @@ pipeline {
                 script {
                     echo 'Tests passed'
                 }
-
             }
         }
         stage('Publish Image') {
             steps {
                 script {
-                    docker.withRegistry('', 'docker_hub') {
+                    docker.withRegistry('tcp://192.168.11.104:2376', registryCredential) {
                         dockerImage.push()
                     }
                 }
