@@ -1,44 +1,15 @@
-pipeline {
-    environment {
-        registry = 'amachlou/cicd_app'
-        registryCredential = 'docker_hub'
-        dockerImage = ''
+node {   
+    stage('Clone repository') {
+        git credentialsId: 'git', url: 'https://github.com/amachlou/cicd_app'
     }
-    agent any
-    stages {
-        stage('Cloning Git') {
-            steps {
-                git 'https://github.com/amachlou/cicd_app.git'
-            }
-        }
-        stage('Building image') {
-            steps {
-                script {
-                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
-                }
-            }
-        }
-        stage('Test image') {
-            steps {
-                script {
-                    echo 'Tests passed'
-                }
-            }
-        }
-        stage('Publish Image') {
-            steps {
-                script {
-                    // docker.withRegistry('tcp://192.168.11.104:2376', registryCredential)
-                    withDockerRegistry([ credentialsId: registryCredential, url: "" ]) {
-                        dockerImage.push()
-                    }
-                }
-            }
-        }
-        stage('Deploy image') {
-            steps {
-                bat "docker run -d $registry:$BUILD_NUMBER"
-            }
-        }
+    
+    stage('Build image') {
+       dockerImage = docker.build("amachlou/cicd_app:"+ "$BUILD_NUMBER")
     }
+    
+    stage('Push image') {
+        withDockerRegistry([ credentialsId: "docker_hub", url: "" ]) {
+        dockerImage.push()
+        }
+    }    
 }
